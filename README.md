@@ -16,7 +16,7 @@ json will be generated in `json_output` directory, make sure you call `mkdir jso
 ```
 cat json_output/heroes.json | convert.js
 ```
-this will take the json output and run it through a script which converts the json to csv, so you can import it into excel files.
+this will take the json output and run it through a script which converts the json to csv and puts the output in heroes.csv. Then you can import this heroes.csv file to excel.
 
 ## Example Output
 ``` json
