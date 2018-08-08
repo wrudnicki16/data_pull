@@ -13,6 +13,11 @@ node index.js
 ```
 json will be generated in `json_output` directory, make sure you call `mkdir json_output` beforehand, otherwise it will error.
 
+```
+cat json_output/heroes.json | convert.js
+```
+this will take the json output and run it through a script which converts the json to csv, so you can import it into excel files.
+
 ## Example Output
 ``` json
 "anti-mage": {
@@ -160,4 +165,4 @@ json will be generated in `json_output` directory, make sure you call `mkdir jso
 ## Resources
 - [OpenDota API](https://docs.opendota.com)
 - [Dota 2 Official Blog - Heropedia](http://www.dota2.com/hero)
-- [List of all talents - Liquidpedia](http://wiki.teamliquid.net/dota2/List_of_all_talents)# data_pull
+- [List of all talents - Liquidpedia](http://wiki.teamliquid.net/dota2/List_of_all_talents)
