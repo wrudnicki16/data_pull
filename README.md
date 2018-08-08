@@ -11,7 +11,7 @@ Fetch all Dota 2 Heroes
 ```
 node index.js 
 ```
-json will be generated in `json_output` directory
+json will be generated in `json_output` directory, make sure you call `mkdir json_output` beforehand, otherwise it will error.
 
 ## Example Output
 ``` json
