@@ -31,6 +31,10 @@ var specialBAT = {
   'doom': 2
 }
 
+function round2Dec(float) {
+  return Number.parseFloat(float.toFixed(2));
+}
+
 function calcHP(hero) {
   if (hero.primary_attr === 'str') {
     return hero.base_health + (hero.base_str * 22.5);
@@ -47,7 +51,7 @@ function calcMP(hero) {
   }
 }
 
-function calcAtk(hero, hero_BAT) {
+function calcAtkTime(hero, hero_BAT) {
   let speed;
 
   if (hero.primary_attr === 'agi') {
@@ -55,7 +59,42 @@ function calcAtk(hero, hero_BAT) {
   } else {
     speed = 1 / (((hero.base_agi + 100) * .01) / hero_BAT);
   }
-  return Number.parseFloat(speed.toFixed(2));
+  return round2Dec(speed);
+}
+
+function calcAtkPerSec(hero, hero_BAT) { // already lvl 1, not base
+  let speed;
+
+  if (hero.primary_attr === 'agi') {
+    speed = (((hero.base_agi * 1.25) + 100) * .01) / hero_BAT;
+  } else {
+    speed = ((hero.base_agi + 100) * .01) / hero_BAT;
+  }
+  return round2Dec(speed);
+}
+
+function damage(hero) {
+  return Math.round((calcAtkMin(hero) + calcAtkMax(hero)) / 2);
+}
+function calcAtkMin(hero) {
+  return hero[`base_${hero.primary_attr}`] + hero.base_attack_min;
+}
+
+function calcAtkMax(hero) {
+  return hero[`base_${hero.primary_attr}`] + hero.base_attack_max;
+}
+
+function calcCreepDPS(hero, atk_per_sec) {
+  return round2Dec(damage(hero) * atk_per_sec);
+}
+
+
+function calcArmor(hero) {
+  if (hero.primary_attr === 'agi') {
+    return round2Dec(hero.base_armor + (hero.base_agi * .16));
+  } else {
+    return round2Dec(hero.base_armor + (hero.base_agi * .2));
+  }
 }
 
 function getHeroes() {
@@ -64,35 +103,42 @@ function getHeroes() {
     getJSON('https://api.opendota.com/api/heroStats', function(error, response){
         if(error) {
             console.log(error)
-        } else {    
-            response.forEach(function(hero) {
+        } else {
+          response.forEach(function(hero) {
                 let hero_name_string = hero.localized_name.replace(' ', '_').toLowerCase();
                 // hero.localized_name.replace(' ', '_').toLowerCase()
                 let hero_BAT = specialBAT[hero_name_string] ? specialBAT[hero_name_string] : 1.7
+                let atk_per_sec = calcAtkPerSec(hero, hero_BAT);
                  heroes[hero_name_string] = {
                     'name': hero.localized_name,
                     // 'link': 'http://www.dota2.com/hero/' + hero.name.substr("npc_dota_hero_".length),
                     // 'avatar': 'https://api.opendota.com' + hero.img,
                     'attribute': hero.primary_attr,
+                    // sort by: attr, range > 150, creep dps
+                    'dmg': damage(hero),
+                    'damageMin': calcAtkMin(hero),
+                    'attackSpeed': calcAtkTime(hero, hero_BAT),
+                    'creepDPS': calcCreepDPS(hero, atk_per_sec),
+                    'attackRange': hero.attack_type === 'Ranged' ? hero.attack_range : "",
+                    'projSpeed': hero.attack_type === 'Ranged' ? hero.projectile_speed : "",
+                    'moveSpeed': hero.move_speed,
+                    'BAT': hero.attack_rate !== 1.7 ? hero.attack_rate : "",
+                    'agiGain': hero.agi_gain,
+                    'hpRegen': hero.base_health_regen > 1.5 ? hero.base_health_regen : "",
+                    'strGain': hero.str_gain,
+                    'armor': calcArmor(hero),
+                    'hp': calcHP(hero),
+                    'mana': calcMP(hero),
+                    'intGain': hero.int_gain,
                     // 'roles': hero.roles,
                     // 'lore': '',
                     // 'strBase': hero.base_str,
                     // 'agiBase': hero.base_agi,
                     // 'intBase': hero.base_int,
-                    // 'strGain': hero.str_gain,
-                    // 'agiGain': hero.agi_gain,
-                    // 'intGain': hero.int_gain,
-                    'hp': calcHP(hero),
-                    'mana': calcMP(hero),
-                    // 'hpRegen': hero.base_health_regen,
+                    'attackPerSec': atk_per_sec, // lvl 1
                     // 'manaRegen': hero.base_mana_regen,
-                    // 'damageMin': hero.base_attack_min,
                     // 'damageMax': hero.base_attack_max,
-                    // 'armor': hero.base_armor,
                     // 'magicResistance': hero.base_mr,
-                    // 'moveSpeed': hero.move_speed,
-                    // 'attackRange': hero.attack_range,
-                    'attackSpeed': calcAtk(hero, hero_BAT)
                     // 'skills': [],
                     // 'talents': [[null,null],[null,null],[null,null],[null,null]]
                 }
