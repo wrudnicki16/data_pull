@@ -35,7 +35,7 @@ process.stdin.on('data', (chunk) => {
 process.stdin.on('end', () => {
   let inputJSON = chunks.join("");
   let parsedData = JSON.parse(inputJSON);
-  console.log(parsedData);
+  // console.log(parsedData);
   
   let csv = jsonToCSV(parsedData);
   exportCSVFile(csv, "heroes");

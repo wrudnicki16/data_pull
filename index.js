@@ -31,6 +31,33 @@ var specialBAT = {
   'doom': 2
 }
 
+function calcHP(hero) {
+  if (hero.primary_attr === 'str') {
+    return hero.base_health + (hero.base_str * 22.5);
+  } else {
+    return hero.base_health + (hero.base_str * 18);
+  }
+}
+
+function calcMP(hero) {
+  if (hero.primary_attr === 'int') {
+    return hero.base_mana + (hero.base_int * 15);
+  } else {
+    return hero.base_mana + (hero.base_int * 12);
+  }
+}
+
+function calcAtk(hero, hero_BAT) {
+  let speed;
+
+  if (hero.primary_attr === 'agi') {
+    speed = 1 / ((((hero.base_agi * 1.25) + 100) * .01) / hero_BAT);
+  } else {
+    speed = 1 / (((hero.base_agi + 100) * .01) / hero_BAT);
+  }
+  return Number.parseFloat(speed.toFixed(2));
+}
+
 function getHeroes() {
     console.log("fetching basic hero info...")
 
@@ -55,8 +82,8 @@ function getHeroes() {
                     // 'strGain': hero.str_gain,
                     // 'agiGain': hero.agi_gain,
                     // 'intGain': hero.int_gain,
-                    'hp': hero.primary_attr === 'str' ? hero.base_health + (hero.base_str * 22.5) : hero.base_health + (hero.base_str * 18),
-                    'mana': hero.primary_attr === 'int' ? hero.base_mana + (hero.base_int * 15) : hero.base_mana + (hero.base_int * 12),
+                    'hp': calcHP(hero),
+                    'mana': calcMP(hero),
                     // 'hpRegen': hero.base_health_regen,
                     // 'manaRegen': hero.base_mana_regen,
                     // 'damageMin': hero.base_attack_min,
@@ -65,7 +92,7 @@ function getHeroes() {
                     // 'magicResistance': hero.base_mr,
                     // 'moveSpeed': hero.move_speed,
                     // 'attackRange': hero.attack_range,
-                    'attackSpeed': hero.primary_attr === 'agi' ? 1 / ((((hero.base_agi * 1.25) + 100) * .01) / hero_BAT) : 1 / (((hero.base_agi + 100) * .01) / hero_BAT)
+                    'attackSpeed': calcAtk(hero, hero_BAT)
                     // 'skills': [],
                     // 'talents': [[null,null],[null,null],[null,null],[null,null]]
                 }
