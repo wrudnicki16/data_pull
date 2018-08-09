@@ -91,9 +91,17 @@ function calcCreepDPS(hero, atk_per_sec) {
 
 function calcArmor(hero) {
   if (hero.primary_attr === 'agi') {
-    return round2Dec(hero.base_armor + (hero.base_agi * .16));
-  } else {
     return round2Dec(hero.base_armor + (hero.base_agi * .2));
+  } else {
+    return round2Dec(hero.base_armor + (hero.base_agi * .16));
+  }
+}
+
+function calcMoveSpeed(hero) {
+  if (hero.primary_attr === 'agi') {
+    return Math.round(hero.move_speed * (1 + (hero.base_agi * .00063)));
+  } else {
+    return Math.round(hero.move_speed * (1 + (hero.base_agi * .0005)));
   }
 }
 
@@ -121,7 +129,7 @@ function getHeroes() {
                     'creepDPS': calcCreepDPS(hero, atk_per_sec),
                     'attackRange': hero.attack_type === 'Ranged' ? hero.attack_range : "",
                     'projSpeed': hero.attack_type === 'Ranged' ? hero.projectile_speed : "",
-                    'moveSpeed': hero.move_speed,
+                    'moveSpeed': calcMoveSpeed(hero),
                     'BAT': hero.attack_rate !== 1.7 ? hero.attack_rate : "",
                     'agiGain': hero.agi_gain,
                     'hpRegen': hero.base_health_regen > 1.5 ? hero.base_health_regen : "",
