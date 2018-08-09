@@ -14,7 +14,7 @@ node index.js
 json will be generated in `json_output` directory, make sure you call `mkdir json_output` beforehand, otherwise it will error.
 
 ```
-cat json_output/heroes.json | convert.js
+cat json_output/heroes.json | node convert.js
 ```
 this will take the json output and run it through a script which converts the json to csv and puts the output in heroes.csv. Then you can import this heroes.csv file to excel.
 

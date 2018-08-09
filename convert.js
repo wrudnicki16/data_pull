@@ -16,7 +16,7 @@ function exportCSVFile(csv, fileTitle) {
 
 function jsonToCSV(json) {
   let headers = Object.keys(json["pangolier"]);
-  let heroes = Object.keys(json);
+  let heroes = Object.keys(json).sort();
 
   const replacer = (key, value) => value === null ? '' : value // specify how you want to handle null values here
   let csv = heroes.map(heroName => headers.map(fieldName => JSON.stringify(json[heroName][fieldName], replacer)).join(','))
