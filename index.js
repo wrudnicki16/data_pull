@@ -13,8 +13,6 @@ var specialBAT = {
   'juggernaut': 1.4,
   'oracle': 1.4,
   'anti-mage': 1.4,
-  'troll_warlord': 1.45,
-  'lone_druid': 1.5,
   'morphling': 1.5,
   'queen_of pain': 1.5,
   'terrorblade': 1.5,
@@ -51,24 +49,24 @@ function calcMP(hero) {
   }
 }
 
-function calcAtkTime(hero, hero_BAT) {
+function calcAtkTime(hero) {
   let speed;
 
   if (hero.primary_attr === 'agi') {
-    speed = 1 / ((((hero.base_agi * 1.25) + 100) * .01) / hero_BAT);
+    speed = 1 / ((((hero.base_agi * 1.25) + 100) * .01) / hero.attack_rate);
   } else {
-    speed = 1 / (((hero.base_agi + 100) * .01) / hero_BAT);
+    speed = 1 / (((hero.base_agi + 100) * .01) / hero.attack_rate);
   }
   return round2Dec(speed);
 }
 
-function calcAtkPerSec(hero, hero_BAT) { // already lvl 1, not base
+function calcAtkPerSec(hero) { // already lvl 1, not base
   let speed;
 
   if (hero.primary_attr === 'agi') {
-    speed = (((hero.base_agi * 1.25) + 100) * .01) / hero_BAT;
+    speed = (((hero.base_agi * 1.25) + 100) * .01) / hero.attack_rate;
   } else {
-    speed = ((hero.base_agi + 100) * .01) / hero_BAT;
+    speed = ((hero.base_agi + 100) * .01) / hero.attack_rate;
   }
   return round2Dec(speed);
 }
@@ -115,17 +113,16 @@ function getHeroes() {
           response.forEach(function(hero) {
                 let hero_name_string = hero.localized_name.replace(' ', '_').toLowerCase();
                 // hero.localized_name.replace(' ', '_').toLowerCase()
-                let hero_BAT = specialBAT[hero_name_string] ? specialBAT[hero_name_string] : 1.7
-                let atk_per_sec = calcAtkPerSec(hero, hero_BAT);
+                // let hero_BAT = specialBAT[hero_name_string] ? specialBAT[hero_name_string] : 1.7
+                let atk_per_sec = calcAtkPerSec(hero);
                  heroes[hero_name_string] = {
                     'name': hero.localized_name,
                     // 'link': 'http://www.dota2.com/hero/' + hero.name.substr("npc_dota_hero_".length),
                     // 'avatar': 'https://api.opendota.com' + hero.img,
                     'attribute': hero.primary_attr,
-                    // sort by: attr, range > 150, creep dps
                     'dmg': damage(hero),
                     'damageMin': calcAtkMin(hero),
-                    'attackSpeed': calcAtkTime(hero, hero_BAT),
+                    'attackSpeed': calcAtkTime(hero),
                     'creepDPS': calcCreepDPS(hero, atk_per_sec),
                     'attackRange': hero.attack_type === 'Ranged' ? hero.attack_range : "",
                     'projSpeed': hero.attack_type === 'Ranged' ? hero.projectile_speed : "",
