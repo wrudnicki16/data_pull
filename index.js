@@ -117,8 +117,8 @@ function getHeroes() {
                 let atk_per_sec = calcAtkPerSec(hero);
                  heroes[hero_name_string] = {
                     'name': hero.localized_name,
-                    // 'link': 'http://www.dota2.com/hero/' + hero.name.substr("npc_dota_hero_".length),
-                    // 'avatar': 'https://api.opendota.com' + hero.img,
+                    'link': 'http://www.dota2.com/hero/' + hero.name.substr("npc_dota_hero_".length),
+                    'avatar': 'https://api.opendota.com' + hero.img,
                     'attribute': hero.primary_attr,
                     'dmg': damage(hero),
                     'damageMin': calcAtkMin(hero),
@@ -144,7 +144,7 @@ function getHeroes() {
                     // 'manaRegen': hero.base_mana_regen,
                     // 'damageMax': hero.base_attack_max,
                     // 'magicResistance': hero.base_mr,
-                    // 'skills': [],
+                    'skills': [],
                     // 'talents': [[null,null],[null,null],[null,null],[null,null]]
                 }
 
@@ -161,111 +161,111 @@ function getHeroes() {
               }
             })
 
+            Object.keys(heroes).forEach(heroName => {
+              scrapeSkills(heroes[heroName]);
+            })
             // scrapeTalents()
         }
     })
 }
 
-// function scrapeSkills(heroObj) {
-//     let hero = heroObj
-
-//     scrapeIt(hero.link, {
-//         lore: '#bioInner',
-//         skills: {
-//             listItem: '.abilitiesInsetBoxInner'
-//           , data: {    
-//                 name: {
-//                     selector: '.abilityHeaderRowDescription > h2'
-//                 },
-//                 description: {
-//                     selector: '.abilityHeaderRowDescription > p'
-//                 },
-//                 icon: {
-//                     selector: '.abilityIconHolder2 > img',
-//                     attr: 'src',
-//                     conv: url => url.substr(0,attr.indexOf('?')),
-//                 },
-//                 rightAttribute: {
-//                     selector: 'div .abilityFooterBoxRight',
-//                 },
-//                 leftAttribute: {
-//                     selector: 'div .abilityFooterBoxLeft',
-//                 },
-//                 cooldownmana: {
-//                     listItem: '.cooldownMana > div',
-//                 }
-//             }
-//         }
+function scrapeSkills(heroObj) {
+    let hero = heroObj
+    scrapeIt(hero.link, {
+        lore: '#bioInner',
+        skills: {
+            listItem: '.abilitiesInsetBoxInner'
+          , data: {    
+                name: {
+                    selector: '.abilityHeaderRowDescription > h2'
+                },
+                description: {
+                    selector: '.abilityHeaderRowDescription > p'
+                },
+                icon: {
+                    selector: '.abilityIconHolder2 > img',
+                    attr: 'src',
+                    conv: url => url.substr(0,attr.indexOf('?')),
+                },
+                rightAttribute: {
+                    selector: 'div .abilityFooterBoxRight',
+                },
+                leftAttribute: {
+                    selector: 'div .abilityFooterBoxLeft',
+                },
+                cooldownmana: {
+                    listItem: '.cooldownMana > div',
+                }
+            }
+        }
     
-//     }).then(res => {
-//         heroName = hero.name.replace(' ','_').toLowerCase()
-//         // Clean Up
-//         heroes[heroName].skills = res.skills.map((skill) => {
-//             // Clean right attributes
-//             skill.rightAttribute = skill.rightAttribute.split("\n")
+    }).then(res => {
+        heroName = hero.name.replace(' ','_').toLowerCase()
+        // Clean Up
+        heroes[heroName].skills = res.skills.map((skill) => {
+            // Clean right attributes
+            skill.rightAttribute = skill.rightAttribute.split("\n")
 
-//             // Clean left attribute
-//             let lastChar = ' '
+            // Clean left attribute
+            let lastChar = ' '
 
-//             for(let i = 0; i < skill.leftAttribute.length; i++) {
+            for(let i = 0; i < skill.leftAttribute.length; i++) {
                 
-//                 if(lastChar !== ' ' && skill.leftAttribute[i] !== ' ' && lastChar !== ',' && skill.leftAttribute[i] !== ',' && (lastChar === lastChar.toLowerCase() || parseInt(lastChar,10)) && skill.leftAttribute[i] === skill.leftAttribute[i].toUpperCase()) {
-//                     skill.leftAttribute = skill.leftAttribute.substr(0,i) + "_" + skill.leftAttribute.substr(i)
-//                     i++
-//                 }
+                if(lastChar !== ' ' && skill.leftAttribute[i] !== ' ' && lastChar !== ',' && skill.leftAttribute[i] !== ',' && (lastChar === lastChar.toLowerCase() || parseInt(lastChar,10)) && skill.leftAttribute[i] === skill.leftAttribute[i].toUpperCase()) {
+                    skill.leftAttribute = skill.leftAttribute.substr(0,i) + "_" + skill.leftAttribute.substr(i)
+                    i++
+                }
 
-//                 lastChar = skill.leftAttribute[i]
-//             }
+                lastChar = skill.leftAttribute[i]
+            }
 
-//             skill.leftAttribute = skill.leftAttribute.split("_")
+            skill.leftAttribute = skill.leftAttribute.split("_")
 
-//             // Merge attribute
-//             let attributes = skill.leftAttribute.concat(skill.rightAttribute).concat(skill.cooldownmana)
+            // Merge attribute
+            let attributes = skill.leftAttribute.concat(skill.rightAttribute).concat(skill.cooldownmana)
 
-//             // Delete old attribute
-//             delete skill.rightAttribute
-//             delete skill.leftAttribute
-//             delete skill.cooldownmana
+            // Delete old attribute
+            delete skill.rightAttribute
+            delete skill.leftAttribute
+            delete skill.cooldownmana
 
-//             skill.attributes = []
+            skill.attributes = {};
 
-//             // Extract attribute
-//             attributes.forEach((attr) => {
-//                 attr = {
-//                     name: attr.substr(0,attr.indexOf(':')).toUpperCase(),
-//                     value: attr.substr(attr.indexOf(': ') + 2)
-//                 }
-//                 if(attr.name.length > 0 && attr.value.length > 0){
-//                     skill.attributes.push(attr)
-//                 }
-                
-//             })
+            // Extract attribute
+            attributes.forEach((attr) => {
+              let name = attr.substr(0, attr.indexOf(':')).toUpperCase();
+              let value = attr.substr(attr.indexOf(': ') + 2);
+              if(name.length > 0 && value.length > 0){
+                  skill.attributes[name] = value
+              }
+              
+            })
 
-//             return skill
-//         })
+            return skill
+        })
 
-//         heroes[heroName].lore = res.lore
+        heroes[heroName].lore = res.lore
 
-//         delete  heroes[heroName].link
+        delete  heroes[heroName].link
 
-//         counter++
+        counter++
         
-//         console.log(hero.name + ' ('+counter+'/'+heroesNumber+')')
+        console.log(hero.name + ' ('+counter+'/'+heroesNumber+')')
 
-//         if(counter === heroesNumber) {
-//             console.log("writing file...")
+        if(counter === heroesNumber) {
+            console.log("writing file...")
 
-//             // Write JSON
-//             jsonfile.writeFile(heroFile, heroes,{spaces: 2}, function (err) {
-//                 if(err) {
-//                     console.error(err)
-//                 } else {
-//                     console.log("completed!")
-//                 }
-//             })
-//         }
-//     })
-// }
+            // Write JSON
+            jsonfile.writeFile(heroFile, heroes,{spaces: 2}, function (err) {
+                if(err) {
+                    console.error(err)
+                } else {
+                    console.log("completed!")
+                }
+            })
+        }
+    })
+}
 
 // function scrapeTalents() {
 //     console.log("fetching talents...")
