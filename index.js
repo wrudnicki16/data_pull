@@ -103,6 +103,32 @@ function calcMoveSpeed(hero) {
   }
 }
 
+function calcManaGain(hero) {
+  if (hero.primary_attr === "int") {
+    return round2Dec(0.9 * (1 + hero.base_int * 0.018 * 1.25));
+  } else {
+    return round2Dec(0.9 * (1 + hero.base_int * 0.018));
+  }
+}
+
+function calcSkillSpam(heroObj) {
+  heroObj["skills"].forEach(skill => {
+    let costs = skill["attributes"]["MANA COST"];
+    let cds = skill["attributes"]["COOLDOWN"];
+    let pool = heroObj["mana"];
+    if (costs && cds) {
+      cost = parseInt(costs.split('/')[0]);
+      cd = parseInt(cds.split('/')[0]);
+      let spamCount = round2Dec(pool / (cost - (heroObj["manaRegen"] * cd)));
+      if (spamCount > 2 && spamCount < 40 && cd < 60) {
+        heroObj["spam"].push({
+          [skill["name"]]: spamCount
+        });
+      }
+    }
+  });
+}
+
 function getHeroes() {
     console.log("fetching basic hero info...")
 
@@ -130,11 +156,13 @@ function getHeroes() {
                     'BAT': hero.attack_rate !== 1.7 ? hero.attack_rate : "",
                     'agiGain': hero.agi_gain,
                     'hpRegen': hero.base_health_regen > 1.5 ? hero.base_health_regen : "",
+                    'manaRegen': calcManaGain(hero),
                     'strGain': hero.str_gain,
                     'armor': calcArmor(hero),
                     'hp': calcHP(hero),
                     'mana': calcMP(hero),
                     'intGain': hero.int_gain,
+                    'spam': [],
                     // 'roles': hero.roles,
                     // 'lore': '',
                     // 'strBase': hero.base_str,
@@ -264,6 +292,8 @@ function scrapeSkills(heroObj) {
                 }
             })
         }
+
+        calcSkillSpam(heroes[heroName]);
     })
 }
 

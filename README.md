@@ -11,7 +11,7 @@ Fetch all Dota 2 Heroes
 ```
 node index.js 
 ```
-json will be generated in `json_output` directory, make sure you call `mkdir json_output` beforehand, otherwise it will error.
+json will be generated in `json_output` directory, make sure you call `mkdir json_output` beforehand, otherwise it will error. Also sometimes the dota website doesn't work, just run again if there are no other errors.
 
 ```
 cat json_output/heroes.json | node sheet.js
