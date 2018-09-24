@@ -33,16 +33,30 @@ function sortHeroesFromJSON(json) {
 }
 
 function jsonToCSV(json) {
-  let headers = Object.keys(json["pangolier"]);
+  let headers = Object.keys(json["pangolier"]).filter(header => header !== "skills" && 
+                                                                header !== "lore" &&
+                                                                header !== "link" &&
+                                                                header !== "manaRegen" &&
+                                                                header !== "avatar" &&
+                                                                header !== "attribute");
   // let heroes = Object.keys(json).sort();
   let heroes = sortHeroesFromJSON(json);
 
-  const replacer = (key, value) => value === null ? '' : value // specify how you want to handle null values here
-  let csv = heroes.map(heroName => headers.map(fieldName => JSON.stringify(json[heroName][fieldName], replacer)).join(','))
+  let csv = heroes.map(heroName => headers.map(fieldName => processField(fieldName, heroName, json)));
   csv.unshift(headers.join(','))
   csv = csv.join('\r\n')
-
+  
   return csv;
+}
+
+function processField(fieldName, heroName, json) {
+  const replacer = (key, value) => value === null ? '' : value // specify how you want to handle null values here
+  if (fieldName === "spam") {
+    let spamSkills = json[heroName][fieldName];
+    return JSON.stringify(spamSkills.join(' | '), replacer);
+  } else {
+    return JSON.stringify(json[heroName][fieldName], replacer);
+  }
 }
 
 let chunks = [];

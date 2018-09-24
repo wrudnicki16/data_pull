@@ -121,9 +121,8 @@ function calcSkillSpam(heroObj) {
       cd = parseInt(cds.split('/')[0]);
       let spamCount = round2Dec(pool / (cost - (heroObj["manaRegen"] * cd)));
       if (spamCount > 2 && spamCount < 40 && cd < 60) {
-        heroObj["spam"].push({
-          [skill["name"]]: spamCount
-        });
+        let words = skill["name"].split(' ');
+        heroObj["spam"].push(`${spamCount} ${words[words.length - 1]}`);
       }
     }
   });
@@ -143,9 +142,6 @@ function getHeroes() {
                 let atk_per_sec = calcAtkPerSec(hero);
                  heroes[hero_name_string] = {
                     'name': hero.localized_name,
-                    'link': 'http://www.dota2.com/hero/' + hero.name.substr("npc_dota_hero_".length),
-                    'avatar': 'https://api.opendota.com' + hero.img,
-                    'attribute': hero.primary_attr,
                     'dmg': damage(hero),
                     'damageMin': calcAtkMin(hero),
                     'attackSpeed': calcAtkTime(hero),
@@ -156,22 +152,25 @@ function getHeroes() {
                     'BAT': hero.attack_rate !== 1.7 ? hero.attack_rate : "",
                     'agiGain': hero.agi_gain,
                     'hpRegen': hero.base_health_regen > 1.5 ? hero.base_health_regen : "",
-                    'manaRegen': calcManaGain(hero),
                     'strGain': hero.str_gain,
                     'armor': calcArmor(hero),
                     'hp': calcHP(hero),
                     'mana': calcMP(hero),
                     'intGain': hero.int_gain,
+                    'attackPerSec': atk_per_sec, // lvl 1
                     'spam': [],
                     // 'roles': hero.roles,
                     // 'lore': '',
                     // 'strBase': hero.base_str,
                     // 'agiBase': hero.base_agi,
                     // 'intBase': hero.base_int,
-                    'attackPerSec': atk_per_sec, // lvl 1
                     // 'manaRegen': hero.base_mana_regen,
                     // 'damageMax': hero.base_attack_max,
                     // 'magicResistance': hero.base_mr,
+                    "attribute": hero.primary_attr,
+                    'manaRegen': calcManaGain(hero),
+                    'avatar': 'https://api.opendota.com' + hero.img,
+                    'link': 'http://www.dota2.com/hero/' + hero.name.substr("npc_dota_hero_".length),
                     'skills': [],
                     // 'talents': [[null,null],[null,null],[null,null],[null,null]]
                 }
