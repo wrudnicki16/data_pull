@@ -8,27 +8,6 @@ var heroes = {}
 var counter = 0;
 var heroesNumber = 0;
 
-var specialBAT = {
-  'dark_willow': 1.3,
-  'juggernaut': 1.4,
-  'oracle': 1.4,
-  'anti-mage': 1.4,
-  'morphling': 1.5,
-  'queen_of pain': 1.5,
-  'terrorblade': 1.5,
-  'windranger': 1.5,
-  'huskar': 1.6,
-  'lina': 1.6,
-  'bristleback': 1.8,
-  'magnus': 1.8,
-  'sven': 1.8,
-  'weaver': 1.8,
-  'lifestealer': 1.85,
-  'treant_protector': 1.9,
-  'spirit_breaker': 1.9,
-  'doom': 2
-}
-
 function round2Dec(float) {
   return Number.parseFloat(float.toFixed(2));
 }
@@ -137,8 +116,6 @@ function getHeroes() {
         } else {
           response.forEach(function(hero) {
                 let hero_name_string = hero.localized_name.replace(' ', '_').toLowerCase();
-                // hero.localized_name.replace(' ', '_').toLowerCase()
-                // let hero_BAT = specialBAT[hero_name_string] ? specialBAT[hero_name_string] : 1.7
                 let atk_per_sec = calcAtkPerSec(hero);
                  heroes[hero_name_string] = {
                     'name': hero.localized_name,
@@ -146,19 +123,24 @@ function getHeroes() {
                     'damageMin': calcAtkMin(hero),
                     'attackSpeed': calcAtkTime(hero),
                     'creepDPS': calcCreepDPS(hero, atk_per_sec),
-                    'attackRange': hero.attack_type === 'Ranged' ? hero.attack_range : "",
-                    'projSpeed': hero.attack_type === 'Ranged' ? hero.projectile_speed : "",
-                    'moveSpeed': calcMoveSpeed(hero),
-                    'BAT': hero.attack_rate !== 1.7 ? hero.attack_rate : "",
-                    'agiGain': hero.agi_gain,
-                    'hpRegen': hero.base_health_regen > 1.5 ? hero.base_health_regen : "",
-                    'strGain': hero.str_gain,
                     'armor': calcArmor(hero),
+                    'attackRange': hero.attack_type === 'Ranged' ? hero.attack_range : "",
+                    'moveSpeed': calcMoveSpeed(hero),
+                    'projSpeed': hero.attack_type === 'Ranged' ? hero.projectile_speed : "",
+                    'agiGain': hero.agi_gain,
+                    'strGain': hero.str_gain,
+                    'intGain': hero.int_gain,
+                    'hpRegen': hero.base_health_regen > 1.5 ? hero.base_health_regen : "",
                     'hp': calcHP(hero),
                     'mana': calcMP(hero),
-                    'intGain': hero.int_gain,
                     'attackPerSec': atk_per_sec, // lvl 1
                     'spam': [],
+                    "attribute": hero.primary_attr,
+                    'manaRegen': calcManaGain(hero),
+                    'avatar': 'https://api.opendota.com' + hero.img,
+                    'link': 'http://www.dota2.com/hero/' + hero.name.substr("npc_dota_hero_".length),
+                    'skills': [],
+                    // 'BAT': hero.attack_rate !== 1.7 ? hero.attack_rate : "",
                     // 'roles': hero.roles,
                     // 'lore': '',
                     // 'strBase': hero.base_str,
@@ -167,11 +149,6 @@ function getHeroes() {
                     // 'manaRegen': hero.base_mana_regen,
                     // 'damageMax': hero.base_attack_max,
                     // 'magicResistance': hero.base_mr,
-                    "attribute": hero.primary_attr,
-                    'manaRegen': calcManaGain(hero),
-                    'avatar': 'https://api.opendota.com' + hero.img,
-                    'link': 'http://www.dota2.com/hero/' + hero.name.substr("npc_dota_hero_".length),
-                    'skills': [],
                     // 'talents': [[null,null],[null,null],[null,null],[null,null]]
                 }
 
