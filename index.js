@@ -1,6 +1,7 @@
 const scrapeIt = require("scrape-it")
 const jsonfile = require('jsonfile')
-const getJSON = require('get-json')
+// const getJSON = require('get-json')
+const fetchJSON = require('fetch-json');
 
 var heroFile = './json_output/heroes.json'
 
@@ -99,7 +100,7 @@ function calcSkillSpam(heroObj) {
       cost = parseInt(costs.split('/')[0]);
       cd = parseInt(cds.split('/')[0]);
       let spamCount = round2Dec(pool / (cost - (heroObj["manaRegen"] * cd)));
-      if (spamCount > 2 && spamCount < 40 && cd < 60) {
+      if (spamCount > 2 && spamCount < 40 && cd < 50) {
         let words = skill["name"].split(' ');
         heroObj["spam"].push(`${spamCount} ${words[words.length - 1]}`);
       }
@@ -110,67 +111,66 @@ function calcSkillSpam(heroObj) {
 function getHeroes() {
     console.log("fetching basic hero info...")
 
-    getJSON('https://api.opendota.com/api/heroStats', function(error, response){
-        if(error) {
-            console.log(error)
-        } else {
-          response.forEach(function(hero) {
-                let hero_name_string = hero.localized_name.replace(' ', '_').toLowerCase();
-                let atk_per_sec = calcAtkPerSec(hero);
-                 heroes[hero_name_string] = {
-                    'name': hero.localized_name,
-                    'dmg': damage(hero),
-                    'damageMin': calcAtkMin(hero),
-                    'attackSpeed': calcAtkTime(hero),
-                    'creepDPS': calcCreepDPS(hero, atk_per_sec),
-                    'armor': calcArmor(hero),
-                    'attackRange': hero.attack_type === 'Ranged' ? hero.attack_range : "",
-                    'moveSpeed': calcMoveSpeed(hero),
-                    'projSpeed': hero.attack_type === 'Ranged' ? hero.projectile_speed : "",
-                    'agiGain': hero.agi_gain,
-                    'strGain': hero.str_gain,
-                    'intGain': hero.int_gain,
-                    'hpRegen': hero.base_health_regen > 1.5 ? hero.base_health_regen : "",
-                    'hp': calcHP(hero),
-                    'mana': calcMP(hero),
-                    'attackPerSec': atk_per_sec, // lvl 1
-                    'spam': [],
-                    "attribute": hero.primary_attr,
-                    'manaRegen': calcManaGain(hero),
-                    'avatar': 'https://api.opendota.com' + hero.img,
-                    'link': 'http://www.dota2.com/hero/' + hero.name.substr("npc_dota_hero_".length),
-                    'skills': [],
-                    // 'BAT': hero.attack_rate !== 1.7 ? hero.attack_rate : "",
-                    // 'roles': hero.roles,
-                    // 'lore': '',
-                    // 'strBase': hero.base_str,
-                    // 'agiBase': hero.base_agi,
-                    // 'intBase': hero.base_int,
-                    // 'manaRegen': hero.base_mana_regen,
-                    // 'damageMax': hero.base_attack_max,
-                    // 'magicResistance': hero.base_mr,
-                    // 'talents': [[null,null],[null,null],[null,null],[null,null]]
-                }
-
-                heroesNumber++
-            })
-
-            jsonfile.writeFile(heroFile, heroes, {
-              spaces: 2
-            }, function (err) {
-              if (err) {
-                console.error(err)
-              } else {
-                console.log("completed!")
-              }
-            })
-
-            Object.keys(heroes).forEach(heroName => {
-              scrapeSkills(heroes[heroName]);
-            })
-            // scrapeTalents()
+    fetchJSON.get('https://api.opendota.com/api/heroStats')
+    .then(response => {
+      let body = 
+      response.forEach(function (hero) {
+        let hero_name_string = hero.localized_name.replace(' ', '_').toLowerCase();
+        let atk_per_sec = calcAtkPerSec(hero);
+        heroes[hero_name_string] = {
+          'name': hero.localized_name,
+          'dmg': damage(hero),
+          'damageMin': calcAtkMin(hero),
+          'attackSpeed': calcAtkTime(hero),
+          'creepDPS': calcCreepDPS(hero, atk_per_sec),
+          'armor': calcArmor(hero),
+          'attackRange': hero.attack_type === 'Ranged' ? hero.attack_range : "",
+          'moveSpeed': calcMoveSpeed(hero),
+          'projSpeed': hero.attack_type === 'Ranged' ? hero.projectile_speed : "",
+          'agiGain': hero.agi_gain,
+          'strGain': hero.str_gain,
+          'intGain': hero.int_gain,
+          'hpRegen': hero.base_health_regen > 1.5 ? hero.base_health_regen : "",
+          'hp': calcHP(hero),
+          'mana': calcMP(hero),
+          'attackPerSec': atk_per_sec, // lvl 1
+          'spam': [],
+          "attribute": hero.primary_attr,
+          'manaRegen': calcManaGain(hero),
+          'skills': [],
+          // 'avatar': 'https://api.opendota.com' + hero.img,
+          'link': 'http://www.dota2.com/hero/' + hero.name.substr("npc_dota_hero_".length), // needed to scrape skills
+          // 'BAT': hero.attack_rate !== 1.7 ? hero.attack_rate : "",
+          // 'roles': hero.roles,
+          // 'lore': '',
+          // 'strBase': hero.base_str,
+          // 'agiBase': hero.base_agi,
+          // 'intBase': hero.base_int,
+          // 'manaRegen': hero.base_mana_regen,
+          // 'damageMax': hero.base_attack_max,
+          // 'magicResistance': hero.base_mr,
+          // 'talents': [[null,null],[null,null],[null,null],[null,null]]
         }
+
+        heroesNumber++
+      })
+
+      jsonfile.writeFile(heroFile, heroes, {
+        spaces: 2
+      }, function (err) {
+        if (err) {
+          console.error(err)
+        } else {
+          console.log("completed!")
+        }
+      })
+
+      Object.keys(heroes).forEach(heroName => {
+        scrapeSkills(heroes[heroName]);
+      })
+      // scrapeTalents()
     })
+    .catch(err => console.log(err));
 }
 
 function scrapeSkills(heroObj) {
@@ -309,7 +309,5 @@ function scrapeSkills(heroObj) {
 //         })
 //     })
 // }
-
-// getHeroes()
 
 getHeroes()

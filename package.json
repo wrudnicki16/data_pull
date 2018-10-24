@@ -7,8 +7,10 @@
   "author": "Withee Poositasai <witheep@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "fetch-json": "^2.1.1",
     "get-json": "^1.0.0",
     "jsonfile": "^4.0.0",
+    "node-fetch": "^2.2.0",
     "scrape-it": "^4.0.0"
   }
 }
